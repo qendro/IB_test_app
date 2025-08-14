@@ -245,6 +245,7 @@ exchange = "IDEALPRO"
 
 ## Deployment Architecture
 
+### Local Development
 ```
 Development Environment:
 ├── ib_client.py (testing)
@@ -258,4 +259,72 @@ Production Environment:
 └── Risk management controls
 ```
 
-This architecture provides a robust, scalable foundation for automated forex trading while maintaining clear separation between testing and production environments.
+### Docker Containerization
+
+The system supports containerized deployment for isolation and portability:
+
+```
+Docker Architecture:
+┌─────────────────────┐    ┌─────────────────────┐
+│   Docker Container  │    │   Host Machine      │
+│                     │    │                     │
+│ ┌─────────────────┐ │    │ ┌─────────────────┐ │
+│ │ forex_trader_   │ │    │ │ IB Gateway/TWS  │ │
+│ │ live.py         │ │────┼▶│ (Port 7497)     │ │
+│ │                 │ │    │ │                 │ │
+│ └─────────────────┘ │    │ └─────────────────┘ │
+└─────────────────────┘    └─────────────────────┘
+```
+
+#### Docker Implementation
+
+**Dockerfile**:
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY forex_trader_live.py .
+CMD ["python", "forex_trader_live.py"]
+```
+
+**Requirements** (`requirements.txt`):
+```
+ibapi
+```
+
+**Network Configuration**:
+- Uses `host.docker.internal` for Windows/macOS Docker Desktop
+- Connects to IB Gateway on host machine port 7497
+- No additional port mapping required
+
+#### Docker Commands
+
+**Build Image**:
+```bash
+docker build -t forex-trader .
+```
+
+**Run Container**:
+```bash
+docker run forex-trader
+```
+
+**Key Benefits**:
+- **Isolation**: Trading logic runs in isolated environment
+- **Portability**: Same container runs across platforms
+- **Reproducibility**: Consistent Python/dependency versions
+- **Scalability**: Easy to deploy multiple trading instances
+- **Security**: Container isolation from host system
+
+#### Docker Network Considerations
+
+**Windows/macOS**: Uses Docker Desktop's `host.docker.internal`
+**Linux**: May require `--network host` flag for localhost access
+
+**Connection Flow**:
+```
+Container → host.docker.internal:7497 → IB Gateway → IB Servers
+```
+
+This architecture provides a robust, scalable foundation for automated forex trading while maintaining clear separation between testing and production environments, with optional containerization for enhanced deployment flexibility.

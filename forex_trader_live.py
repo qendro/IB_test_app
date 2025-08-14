@@ -110,7 +110,7 @@ def main():
     
     # Connect
     print(f"\n🔌 Connecting to IB API...")
-    trader.connect("127.0.0.1", 7497, 3)
+    trader.connect("host.docker.internal", 7497, 3)
     
     # Start API thread
     api_thread = threading.Thread(target=trader.run, daemon=True)

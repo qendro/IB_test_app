@@ -11,12 +11,14 @@ from ibapi.wrapper import EWrapper
 from ibapi.contract import Contract
 
 
+
 class IBClient(EWrapper, EClient):
     def __init__(self):
         EClient.__init__(self, self)
         self.connected = False
         self.account_info = {}
         self.positions = []
+  
         
     def error(self, reqId, errorCode, errorString, advancedOrderRejectJson=""):
         """Handle API errors"""
